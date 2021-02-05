@@ -4,7 +4,9 @@ const { GROUP_NAMES, EXPORT_DIR } = require("./constants");
 const { GROUPS } = require("./grouping");
 
 const exportData = (data, totalMined) => {
-  fs.mkdirSync(`${EXPORT_DIR}`, { recursive: true });
+  if (!fs.existsSync(`${EXPORT_DIR}`)) {
+    fs.mkdirSync(`${EXPORT_DIR}`, { recursive: true });
+  }
 
   data.forEach((groupData, i) => {
     const group = GROUPS[i];
@@ -12,7 +14,10 @@ const exportData = (data, totalMined) => {
 
     Object.entries(groupData).forEach(([key, processedData]) => {
       console.log(`Saving to ${EXPORT_DIR}/${key}/${groupName}.json...`);
-      fs.mkdirSync(`${EXPORT_DIR}/${key}`, { recursive: true });
+      if (!fs.existsSync(`${EXPORT_DIR}/${key}`)) {
+        fs.mkdirSync(`${EXPORT_DIR}/${key}`, { recursive: true });
+      }
+
       fs.writeFileSync(
         `${EXPORT_DIR}/${key}/${groupName}.json`,
         JSON.stringify(processedData)
