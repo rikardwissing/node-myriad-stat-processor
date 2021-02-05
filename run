@@ -2,7 +2,7 @@
 
 const { getMinedCoinsCount } = require("./helpers");
 const { blockCount } = require("./data");
-const { GROUPS, processGroupData } = require("./grouping");
+const { GROUPS, GROUPINFO, processGroupData } = require("./grouping");
 const { exportData } = require("./export");
 const {
   transactionProcessor,
@@ -24,7 +24,8 @@ const data = GROUPS.map(group => {
     minedCoins: process(minedCoinsProcessor),
     outstanding: process(outstandingProcessor),
     inflation: process(inflationProcessor),
-    difficulty: process(difficultyProcessor)
+    difficulty: process(difficultyProcessor),
+    groupInfo: GROUPINFO[group]
   };
 });
 
