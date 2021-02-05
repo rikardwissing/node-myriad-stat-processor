@@ -28,6 +28,4 @@ const data = GROUPS.map(group => {
   };
 });
 
-exportData(data);
-
-const totalMined = getMinedCoinsCount(0, blockCount + 1);
+exportData(data, getMinedCoinsCount(0, blockCount + 1));
