@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+const { getMinedCoinsCount } = require("./helpers");
+const { blockCount } = require("./data");
+const { GROUPS, processGroupData } = require("./grouping");
+const { exportData } = require("./export");
+const {
+  transactionProcessor,
+  blocksProcessor,
+  algoBlocksProcessor,
+  minedCoinsProcessor,
+  outstandingProcessor,
+  inflationProcessor,
+  difficultyProcessor
+} = require("./processing");
+
+const data = GROUPS.map(group => {
+  const process = processGroupData(group);
+
+  return {
+    transactions: process(transactionProcessor),
+    blocks: process(blocksProcessor),
+    algoBlocks: process(algoBlocksProcessor),
+    minedCoins: process(minedCoinsProcessor),
+    outstanding: process(outstandingProcessor),
+    inflation: process(inflationProcessor),
+    difficulty: process(difficultyProcessor)
+  };
+});
+
+exportData(data);
+
+const totalMined = getMinedCoinsCount(0, blockCount + 1);
