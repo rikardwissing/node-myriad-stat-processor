@@ -4,6 +4,8 @@ const { GROUP_NAMES, EXPORT_DIR } = require("./constants");
 const { GROUPS } = require("./grouping");
 
 const exportData = (data, totalMined) => {
+  fs.mkdirSync(`${EXPORT_DIR}`, { recursive: true });
+
   data.forEach((groupData, i) => {
     const group = GROUPS[i];
     const groupName = GROUP_NAMES[group];
