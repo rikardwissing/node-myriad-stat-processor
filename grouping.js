@@ -81,8 +81,25 @@ const processGroupData = group => {
   return processor => {
     const data = [];
     for (var i = 0; i < totalGroups; i++) {
-      const { startIndex, endIndex } = getGroupData(i, group);
-      data.push(processor({ startIndex, endIndex, totalGroups, group }, i));
+      const {
+        startIndex,
+        endIndex,
+        startTimestamp,
+        endTimestamp
+      } = getGroupData(i, group);
+      data.push(
+        processor(
+          {
+            startIndex,
+            endIndex,
+            totalGroups,
+            group,
+            startTimestamp,
+            endTimestamp
+          },
+          i
+        )
+      );
     }
     return data;
   };

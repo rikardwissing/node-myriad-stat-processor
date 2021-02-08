@@ -1,7 +1,15 @@
-const { ALGOS } = require("./chain");
+const { ALGOS, ALGO_START_BLOCKS, ALGO_END_BLOCKS } = require("./chain");
 const { YEAR } = require("./constants");
 const { getMinedCoinsCount } = require("./helpers");
-const { algoData, transactionData, algoDifficulties } = require("./data");
+const {
+  timeData,
+  algoData,
+  transactionData,
+  algoDifficulties,
+  difficultyData,
+  prevBlockSameAlgo,
+  nextBlockSameAlgo
+} = require("./data");
 
 const transactionProcessor = ({ startIndex, endIndex }) => {
   const txWindow = transactionData.slice(startIndex, endIndex);
@@ -25,13 +33,74 @@ const difficultyProcessor = ({ startIndex, endIndex }) =>
   algoDifficulties.map(
     difficulties =>
       difficulties.slice(startIndex, endIndex).reduce((a, c) => a + c, 0) /
-      difficulties.length
+      (endIndex - startIndex)
   );
 
 const inflationProcessor = ({ startIndex, endIndex, group }, i) => {
   const circulatingBefore = getMinedCoinsCount(0, startIndex);
   const minedCoins = getMinedCoinsCount(startIndex, endIndex);
   return (minedCoins * (YEAR / group)) / circulatingBefore;
+};
+
+const workSecondsProcessor = (
+  { startIndex, endIndex, group, startTimestamp, endTimestamp },
+  i
+) => {
+  return ALGOS.map((_, algoI) => {
+    let summedDifficulty = 0;
+
+    for (var i = startIndex; i < endIndex; i++) {
+      if (algoI === algoData[i]) {
+        summedDifficulty += difficultyData[i];
+      }
+    }
+
+    if (
+      ALGO_START_BLOCKS[algoI] < startIndex &&
+      ALGO_END_BLOCKS[algoI] > startIndex
+    ) {
+      for (var i = startIndex - 1; i > 0; i--) {
+        if (algoI === algoData[i]) {
+          let timeToMine = endTimestamp - timeData[i];
+          let timeSpentInPeriod = endTimestamp - startTimestamp;
+
+          if (nextBlockSameAlgo[i] !== -1) {
+            const nextTimestamp = timeData[nextBlockSameAlgo[i]];
+            timeToMine = nextTimestamp - timeData[i];
+            timeSpentInPeriod = nextTimestamp - startTimestamp;
+          }
+
+          const timeShare = timeSpentInPeriod / timeToMine;
+          summedDifficulty += difficultyData[i] * timeShare;
+          break;
+        }
+      }
+    }
+
+    if (
+      ALGO_START_BLOCKS[algoI] < endIndex &&
+      ALGO_END_BLOCKS[algoI] > endIndex
+    ) {
+      for (var i = endIndex; i < algoData.length; i++) {
+        if (algoI === algoData[i]) {
+          let timeToMine = timeData[i] - startTimestamp;
+          let timeSpentInPeriod = endTimestamp - startTimestamp;
+
+          if (prevBlockSameAlgo[i] !== -1) {
+            const prevTimestamp = timeData[prevBlockSameAlgo[i]];
+            timeToMine = timeData[i] - prevTimestamp;
+            timeSpentInPeriod = endTimestamp - prevTimestamp;
+          }
+
+          const timeShare = timeSpentInPeriod / timeToMine;
+          summedDifficulty += difficultyData[i] * timeShare;
+          break;
+        }
+      }
+    }
+
+    return summedDifficulty / group;
+  });
 };
 
 module.exports = {
@@ -41,5 +110,6 @@ module.exports = {
   minedCoinsProcessor,
   outstandingProcessor,
   inflationProcessor,
-  difficultyProcessor
+  difficultyProcessor,
+  workSecondsProcessor
 };

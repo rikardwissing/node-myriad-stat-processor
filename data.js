@@ -45,6 +45,25 @@ const algoDifficulties = ALGOS.map((_, algoI) => {
   });
 });
 
+const prevArr = ALGOS.map(() => -1);
+const prevBlockSameAlgo = algoData.map((d, i) => {
+  const prev = prevArr[d];
+  prevArr[d] = i;
+
+  return prev;
+});
+
+const nextArr = ALGOS.map(() => -1);
+const nextBlockSameAlgo = [...algoData]
+  .reverse()
+  .map((d, i) => {
+    const next = nextArr[d];
+    nextArr[d] = algoData.length - i - 1;
+
+    return next;
+  })
+  .reverse();
+
 module.exports = {
   lastPage,
   blockCount,
@@ -53,5 +72,7 @@ module.exports = {
   algoData,
   transactionData,
   supplyCache,
-  algoDifficulties
+  algoDifficulties,
+  prevBlockSameAlgo,
+  nextBlockSameAlgo
 };
