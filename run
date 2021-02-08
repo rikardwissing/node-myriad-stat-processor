@@ -26,7 +26,7 @@ const data = GROUPS.map(group => {
     outstanding: process(outstandingProcessor),
     inflation: process(inflationProcessor),
     difficulty: process(difficultyProcessor),
-    workSecondsProcessor: process(workSecondsProcessor),
+    workSeconds: process(workSecondsProcessor),
     groupInfo: GROUPINFO[group]
   };
 });
