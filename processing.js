@@ -48,18 +48,23 @@ const workSecondsProcessor = (
 ) => {
   return ALGOS.map((_, algoI) => {
     let summedDifficulty = 0;
-    let firstFound = false;
+    let firstDifficulty = 0;
+    let lastDifficulty = 0;
 
     for (var i = startIndex; i < endIndex; i++) {
       if (algoI === algoData[i]) {
-        if (firstFound) {
-          // skip first one since we take that into account in the next step
-          summedDifficulty += difficultyData[i];
+        if (!firstDifficulty) {
+          firstDifficulty = difficultyData[i];
         }
+        lastDifficulty = difficultyData[i];
 
-        firstFound = true;
+        summedDifficulty += difficultyData[i];
       }
     }
+
+    // remove first and last difficulty as they get calulated in the next step
+    summedDifficulty -= firstDifficulty;
+    summedDifficulty -= lastDifficulty;
 
     if (
       ALGO_START_BLOCKS[algoI] < startIndex &&
@@ -68,23 +73,17 @@ const workSecondsProcessor = (
       for (var i = startIndex - 1; i > 0; i--) {
         if (algoI === algoData[i]) {
           const periodDuration = endTimestamp - startTimestamp;
-          let timeToMine = endTimestamp - timeData[i];
-          let timeSpentInPeriod = periodDuration;
 
           if (nextBlockSameAlgo[i] !== -1) {
             const nextTimestamp = timeData[nextBlockSameAlgo[i]];
-            timeToMine = nextTimestamp - timeData[i];
-            timeSpentInPeriod = nextTimestamp - startTimestamp;
+            const timeToMine = nextTimestamp - timeData[i];
+            let timeSpentInPeriod = nextTimestamp - startTimestamp;
             if (periodDuration < timeSpentInPeriod) {
               timeSpentInPeriod = periodDuration; // cannot spend more time in period than possible
             }
-          } else {
-            // if next not found it means that zero work might be done
-            break;
+            const timeShare = timeSpentInPeriod / timeToMine;
+            summedDifficulty += difficultyData[i] * timeShare;
           }
-
-          const timeShare = timeToMine / timeSpentInPeriod;
-          summedDifficulty += difficultyData[i] * timeShare;
           break;
         }
       }
@@ -98,20 +97,18 @@ const workSecondsProcessor = (
         if (algoI === algoData[i]) {
           const periodDuration = endTimestamp - startTimestamp;
 
-          let timeToMine = timeData[i] - startTimestamp;
-          let timeSpentInPeriod = periodDuration;
-
           if (prevBlockSameAlgo[i] !== -1) {
             const prevTimestamp = timeData[prevBlockSameAlgo[i]];
-            timeToMine = timeData[i] - prevTimestamp;
-            timeSpentInPeriod = endTimestamp - prevTimestamp;
+            const timeToMine = timeData[i] - prevTimestamp;
+            let timeSpentInPeriod = endTimestamp - prevTimestamp;
             if (periodDuration < timeSpentInPeriod) {
               timeSpentInPeriod = periodDuration; // cannot spend more time in period than possible
             }
-          }
 
-          const timeShare = timeToMine / timeSpentInPeriod;
-          summedDifficulty += difficultyData[i] * timeShare;
+            const timeShare = timeSpentInPeriod / timeToMine;
+            summedDifficulty +=
+              difficultyData[prevBlockSameAlgo[i]] * timeShare;
+          }
           break;
         }
       }
