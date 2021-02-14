@@ -55,8 +55,9 @@ const workSecondsProcessor = (
       if (algoI === algoData[i]) {
         if (!firstDifficulty) {
           firstDifficulty = difficultyData[i];
+        } else {
+          lastDifficulty = difficultyData[i];
         }
-        lastDifficulty = difficultyData[i];
 
         summedDifficulty += difficultyData[i];
       }
