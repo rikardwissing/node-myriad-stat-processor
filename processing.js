@@ -48,10 +48,16 @@ const workSecondsProcessor = (
 ) => {
   return ALGOS.map((_, algoI) => {
     let summedDifficulty = 0;
+    let firstFound = false;
 
     for (var i = startIndex; i < endIndex; i++) {
       if (algoI === algoData[i]) {
-        summedDifficulty += difficultyData[i];
+        if (firstFound) {
+          // skip first one since we take that into account in the next loop
+          summedDifficulty += difficultyData[i];
+        }
+
+        firstFound = true;
       }
     }
 
