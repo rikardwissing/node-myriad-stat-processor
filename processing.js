@@ -61,13 +61,20 @@ const workSecondsProcessor = (
     ) {
       for (var i = startIndex - 1; i > 0; i--) {
         if (algoI === algoData[i]) {
+          const periodDuration = endTimestamp - startTimestamp;
           let timeToMine = endTimestamp - timeData[i];
-          let timeSpentInPeriod = endTimestamp - startTimestamp;
+          let timeSpentInPeriod = periodDuration;
 
           if (nextBlockSameAlgo[i] !== -1) {
             const nextTimestamp = timeData[nextBlockSameAlgo[i]];
             timeToMine = nextTimestamp - timeData[i];
             timeSpentInPeriod = nextTimestamp - startTimestamp;
+            if (periodDuration < timeSpentInPeriod) {
+              timeSpentInPeriod = periodDuration; // cannot spend more time in period than possible
+            }
+          } else {
+            // if next not found it means that zero work might be done
+            break;
           }
 
           const timeShare = timeSpentInPeriod / timeToMine;
@@ -83,13 +90,18 @@ const workSecondsProcessor = (
     ) {
       for (var i = endIndex; i < algoData.length; i++) {
         if (algoI === algoData[i]) {
+          const periodDuration = endTimestamp - startTimestamp;
+
           let timeToMine = timeData[i] - startTimestamp;
-          let timeSpentInPeriod = endTimestamp - startTimestamp;
+          let timeSpentInPeriod = periodDuration;
 
           if (prevBlockSameAlgo[i] !== -1) {
             const prevTimestamp = timeData[prevBlockSameAlgo[i]];
             timeToMine = timeData[i] - prevTimestamp;
             timeSpentInPeriod = endTimestamp - prevTimestamp;
+            if (periodDuration < timeSpentInPeriod) {
+              timeSpentInPeriod = periodDuration; // cannot spend more time in period than possible
+            }
           }
 
           const timeShare = timeSpentInPeriod / timeToMine;
