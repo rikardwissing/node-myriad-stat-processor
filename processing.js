@@ -53,7 +53,7 @@ const workSecondsProcessor = (
     for (var i = startIndex; i < endIndex; i++) {
       if (algoI === algoData[i]) {
         if (firstFound) {
-          // skip first one since we take that into account in the next loop
+          // skip first one since we take that into account in the next step
           summedDifficulty += difficultyData[i];
         }
 
