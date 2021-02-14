@@ -83,7 +83,7 @@ const workSecondsProcessor = (
             break;
           }
 
-          const timeShare = timeSpentInPeriod / timeToMine;
+          const timeShare = timeToMine / timeSpentInPeriod;
           summedDifficulty += difficultyData[i] * timeShare;
           break;
         }
@@ -110,7 +110,7 @@ const workSecondsProcessor = (
             }
           }
 
-          const timeShare = timeSpentInPeriod / timeToMine;
+          const timeShare = timeToMine / timeSpentInPeriod;
           summedDifficulty += difficultyData[i] * timeShare;
           break;
         }
