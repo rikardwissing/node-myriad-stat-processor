@@ -1,6 +1,7 @@
 const {
   HOUR,
-  QUARTER_DAY,
+  THREE_HOURS,
+  SIX_HOURS,
   DAY,
   WEEK,
   MONTH,
@@ -10,7 +11,7 @@ const {
 const { timeData } = require("./data");
 const { getIndex } = require("./helpers");
 
-const GROUPS = [HOUR, QUARTER_DAY, DAY, WEEK, MONTH, QUARTER];
+const GROUPS = [HOUR, THREE_HOURS, SIX_HOURS, DAY, WEEK, MONTH, QUARTER];
 
 const GROUPINFO = GROUPS.reduce((a, group) => {
   let startTimestamp = group * (parseInt(timeData[0] / group, 10) + 1); // plus 1 for start of next
